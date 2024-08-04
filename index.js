@@ -1,36 +1,35 @@
-
 let panorama = null;
-
-async function randomizeLocation() {
-	const resp = await fetch("https://api.3geonames.org/.json?random=yes", {});
-	const json = await resp.json();
-	const { inlatt, inlongt } = json["nearest"];
-	console.log(inlatt, inlongt);
-	loc = { lat: inlatt, long: inlongt };
-}
+let location = { lat: null, lng: null };
 
 async function changeLocation() {
 	const service = new google.maps.StreetViewService();
 
-	let randomLocation;
 	let latLng, pano;
 
 	let found = false;
 
+	let randomLocation;
+
 	while (!found) {
-		randomLocation = { lat: Math.random() * 180 - 90, lng: Math.random() * 360 - 180 };
+		randomLocation = {
+			lat: Math.random() * 180 - 90,
+			lng: Math.random() * 360 - 180,
+		};
 		console.debug(`randomLocation ${JSON.stringify(randomLocation)}`);
 
-		const panoramaData = await new Promise(resolve => {
-			service.getPanorama({
-				location: randomLocation,
-				preference: google.maps.StreetViewPreference.BEST,
-				radius: 50000,
-				sources: [google.maps.StreetViewSource.OUTDOOR],
-			}, (data, status) => {
+		const panoramaData = await new Promise((resolve) => {
+			service.getPanorama(
+				{
+					location: randomLocation,
+					preference: google.maps.StreetViewPreference.BEST,
+					radius: 50000,
+					sources: [google.maps.StreetViewSource.OUTDOOR],
+				},
+				(data, status) => {
 					console.debug(data, status);
 					resolve({ data, status });
-				});
+				},
+			);
 		});
 
 		const { data, status } = panoramaData;
@@ -46,7 +45,7 @@ async function changeLocation() {
 				({ location: { latLng, pano } } = data);
 				console.debug(`found ${latLng} ${pano}`);
 				found = true;
-				break; 
+				break;
 			default:
 				console.error(`unexpected status ${status}`);
 		}
@@ -54,12 +53,16 @@ async function changeLocation() {
 		await sleep(300);
 	}
 
+	location.lat = latLng.lat;
+	location.lng = latLng.lng;
+
+	console.debug(`changed location to ${location}`);
+
 	panorama.setPano(pano);
 	panorama.setVisible(true);
-
 }
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function initPanoramaElement() {
 	panorama = new google.maps.StreetViewPanorama(
@@ -75,11 +78,10 @@ async function initPanoramaElement() {
 		},
 	);
 	window.panorama = panorama;
-	
+
 	changeLocation();
 
 	console.log(panorama);
 }
 
 window.initPanoramaElement = initPanoramaElement;
-
