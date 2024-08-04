@@ -1,5 +1,5 @@
 let panorama = null;
-let location = { lat: null, lng: null };
+let loc = { lat: null, lng: null };
 
 async function changeLocation() {
 	const service = new google.maps.StreetViewService();
@@ -17,7 +17,7 @@ async function changeLocation() {
 		};
 		console.debug(`randomLocation ${JSON.stringify(randomLocation)}`);
 
-		const panoramaData = await new Promise((resolve) => {
+		const { data, status } = await new Promise((resolve) => {
 			service.getPanorama(
 				{
 					location: randomLocation,
@@ -26,13 +26,10 @@ async function changeLocation() {
 					sources: [google.maps.StreetViewSource.OUTDOOR],
 				},
 				(data, status) => {
-					console.debug(data, status);
 					resolve({ data, status });
 				},
 			);
 		});
-
-		const { data, status } = panoramaData;
 
 		switch (status) {
 			case google.maps.StreetViewStatus.ZERO_RESULTS:
@@ -43,7 +40,7 @@ async function changeLocation() {
 				break;
 			case google.maps.StreetViewStatus.OK:
 				({ location: { latLng, pano } } = data);
-				console.debug(`found ${latLng} ${pano}`);
+				console.debug(`found ${latLng}`);
 				found = true;
 				break;
 			default:
@@ -53,10 +50,9 @@ async function changeLocation() {
 		await sleep(300);
 	}
 
-	location.lat = latLng.lat;
-	location.lng = latLng.lng;
-
-	console.debug(`changed location to ${location}`);
+	loc.lat = latLng.lat();
+	loc.lng = latLng.lng();
+	console.debug(`changed loc ${JSON.stringify(loc)}`);
 
 	panorama.setPano(pano);
 	panorama.setVisible(true);
@@ -75,13 +71,13 @@ async function initPanoramaElement() {
 			},
 			motionTracking: false,
 			motionTrackingControl: false,
+			showRoadLabels: false,
+			disableDefaultUI: true,
 		},
 	);
 	window.panorama = panorama;
 
 	changeLocation();
-
-	console.log(panorama);
 }
 
 window.initPanoramaElement = initPanoramaElement;
