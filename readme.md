@@ -1,4 +1,6 @@
 # localguessr
+Work In Progress 
+
 
 A game about guessing your location based on Google Street View API.
 
