@@ -1,17 +1,19 @@
 # localguessr
-Work In Progress 
-
 
 A game about guessing your location based on Google Street View API.
 
-Written in vanilla JavaScript and HTML. Runs purely inside your browser, doesn't require a server.
+- Client-only: runs purely inside a browser, doesn't require a stateful server other than for serving static pages.
+- Doesn't have ads.
+- Doesn't need account registration.
+- Doesn't have a paywall.
 
 # Run
-Serve `index.html` page:
+1) If you want to host localguessr, you need to get [API key](https://developers.google.com/maps/documentation/javascript/get-api-key) and put it in [index.html](./index.html) `<script>`; note that it works without API key. 
+2) Serve `index.html` page:
 ```
 python -m http.server 3000
 chromium http://localhost:3000
 ```
 
 # Acknowledgements
-- [https://github.com/codergautam/worldguessr](WorldGuessr) (MIT license)
+- [WorldGuessr](https://github.com/codergautam/worldguessr) (MIT license)
