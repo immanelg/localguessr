@@ -82,7 +82,30 @@ async function changeLocation() {
     panorama.setVisible(true);
 }
 
-const m = new ol.Map({
+const point = new ol.Feature({
+    geometry: new ol.geom.Point(ol.proj.fromLonLat([12.5, 41.9])),
+});
+
+point.setStyle(
+  new ol.style.Style({
+    image: new ol.style.Icon({
+      color: '#BADA55',
+      crossOrigin: 'anonymous',
+      src: './favicon.ico',
+    }),
+  }),
+);
+
+
+const vectorSource = new ol.source.Vector({
+  features: [point],
+});
+
+const vectorLayer = new ol.layer.Vector({
+  source: vectorSource,
+});
+
+const map = new ol.Map({
     target: "map",
     layers: [
         new ol.layer.Tile({
@@ -90,9 +113,12 @@ const m = new ol.Map({
                 url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
             }),
         }),
+        vectorLayer,
     ],
     view: new ol.View({
         center: [0, 0],
         zoom: 2,
     }),
 });
+
+
