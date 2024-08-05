@@ -8,7 +8,7 @@ A game about guessing your location based on Google Street View API.
 - Doesn't have a paywall.
 
 # Run
-1) If you want to host localguessr, you need to get [API key](https://developers.google.com/maps/documentation/javascript/get-api-key) and put it in [index.html](./index.html) `<script>`; note that it works without API key. 
+1) If you want to host localguessr, you need to get [API key](https://developers.google.com/maps/documentation/javascript/get-api-key) and put it in [index.html](./index.html) `<script>` tag that loads Google APIs; note that it works without API key. 
 2) Serve `index.html` page:
 ```
 python -m http.server 3000
