@@ -30,7 +30,6 @@ html, body {
     cursor: pointer;
 
     opacity: 0.6;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 #map:hover {
@@ -41,9 +40,7 @@ html, body {
 
     opacity: 1;
 
-    transform: scale(1.5);
-
-    /*transition: height 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out;*/
+    transition: height 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 img[alt="Google"] {
