@@ -3,28 +3,25 @@
     <head>
         <title>LocalGuessr</title>
         <link rel="stylesheet" href="style.css" />
-        <script type="module" src="index.js"></script>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
     <body>
         <h1>Hello!</h1>
 
+        <button id="guess">Guess</button>
         <div id="panorama"></div>
         <div id="map"></div>
 
-        <script
-            src="https://maps.googleapis.com/maps/api/js?callback=initPanoramaElement&v=weekly"
-            defer
-        ></script>
-        <!-- Example of how to add your API key to <script> tag above: -->
-        <!--<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initPanoramaElement&v=weekly" defer></script>-->
-        <!--<iframe src="http://maps.google.com/maps?q=25.3076008,51.4803216&z=16&output=embed" height="450" width="600"></iframe>-->
+        <!--TODO: "not recommended for production", should bundle with npm or something, but do I care? does anyone really care other than me about this stupid script tag? does anyone care about me? and this repository? i dont know. please help. i'm lost in life. why am I even doing this? why are we still here, just to suffer? -->
+        <script src="https://cdn.jsdelivr.net/npm/ol@v10.0.0/dist/ol.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.0.0/ol.css">
 
-        <script src="OpenLayers.js"></script>
+        <script type="module" src="index.js"></script>
 
-        <script>
-            map = new OpenLayers.Map("demoMap");
-            map.addLayer(new OpenLayers.Layer.OSM());
-            map.zoomToMaxExtent();
-        </script>
+        <!--TODO: "Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading" -->
+        <script src="https://maps.googleapis.com/maps/api/js?callback=init&v=weekly" defer></script>
+        <!-- NOTE: Example of how to add your API key to <script> tag above: -->
+        <!--<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=init&v=weekly" defer></script>-->
+
     </body>
 </html>

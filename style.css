@@ -1,18 +1,49 @@
-html,
-body {
+* {
+    box-sizing: border-box;
+}
+
+html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    background-color: #303030;
+    color: #ffffff;
+    font-family: sans-serif;
 }
 
 #panorama {
     height: 500px;
-    width: 500px;
+    width: 1000px;
     filter: invert(1);
+    padding: 100px;
 }
 
 #map {
-    height: 300px;
+    position: absolute;
+    z-index: 1;
+
+    height: 30%;
+    width: 30%;
+    bottom: 0;
+    right: 0;
+
+    cursor: pointer;
+
+    opacity: 0.6;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+#map:hover {
+    height: 75%;
+    width: 75%;
+    bottom: 0;
+    right: 0;
+
+    opacity: 1;
+
+    transform: scale(1.5);
+
+    /*transition: height 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out;*/
 }
 
 img[alt="Google"] {

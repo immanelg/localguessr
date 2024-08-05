@@ -1,7 +1,29 @@
 let panorama = null;
 let loc = { lat: null, lng: null };
 
+window.init = async function init() {
+    panorama = new google.maps.StreetViewPanorama(
+        document.getElementById("panorama"),
+        {
+            position: { lat: 42.345573, lng: -71.098326 },
+            pov: {
+                heading: 34,
+                pitch: 10,
+            },
+            motionTracking: false,
+            motionTrackingControl: false,
+            showRoadLabels: false,
+            disableDefaultUI: true,
+        },
+    );
+
+    changeLocation();
+};
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function changeLocation() {
+    if (true) return;
     const service = new google.maps.StreetViewService();
 
     let latLng, pano;
@@ -60,26 +82,17 @@ async function changeLocation() {
     panorama.setVisible(true);
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function initPanoramaElement() {
-    panorama = new google.maps.StreetViewPanorama(
-        document.getElementById("panorama"),
-        {
-            //position: { lat: 42.345573, lng: -71.098326 },
-            pov: {
-                heading: 34,
-                pitch: 10,
-            },
-            motionTracking: false,
-            motionTrackingControl: false,
-            showRoadLabels: false,
-            disableDefaultUI: true,
-        },
-    );
-    window.panorama = panorama;
-
-    changeLocation();
-}
-
-window.initPanoramaElement = initPanoramaElement;
+const m = new ol.Map({
+    target: "map",
+    layers: [
+        new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            }),
+        }),
+    ],
+    view: new ol.View({
+        center: [0, 0],
+        zoom: 2,
+    }),
+});
