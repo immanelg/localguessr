@@ -1,37 +1,35 @@
 let panorama = null;
-let loc = { lat: null, lng: null };
+
+let loc = null;
+
+let locGuessed = null;
 
 window.init = async function init() {
-    panorama = new google.maps.StreetViewPanorama(
-        document.getElementById("panorama"),
-        {
-            position: { lat: 42.345573, lng: -71.098326 },
-            pov: {
-                heading: 34,
-                pitch: 10,
-            },
-            motionTracking: false,
-            motionTrackingControl: false,
-            showRoadLabels: false,
-            disableDefaultUI: true,
-        },
-    );
+    panorama = new google.maps.StreetViewPanorama(document.getElementById("panorama"), {
+        visible: false,
+        motionTracking: false,
+        motionTrackingControl: false,
+        showRoadLabels: false,
+        disableDefaultUI: true,
+    });
 
     changeLocation();
 };
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function sleep(ms) { 
+    return new Promise((r) => setTimeout(r, ms));
+}
 
-async function changeLocation() {
-    if (true) return;
+// FIXME: this is dumb as fuck
+async function generateRandomLoc() {
+    if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
     const service = new google.maps.StreetViewService();
 
-    let latLng, pano;
+    let latLng;
 
     let found = false;
 
     let randomLocation;
-
     while (!found) {
         randomLocation = {
             lat: Math.random() * 180 - 90,
@@ -40,17 +38,14 @@ async function changeLocation() {
         console.debug(`randomLocation ${JSON.stringify(randomLocation)}`);
 
         const { data, status } = await new Promise((resolve) => {
-            service.getPanorama(
-                {
-                    location: randomLocation,
-                    preference: google.maps.StreetViewPreference.BEST,
-                    radius: 50000,
-                    sources: [google.maps.StreetViewSource.OUTDOOR],
-                },
-                (data, status) => {
-                    resolve({ data, status });
-                },
-            );
+            service.getPanorama({
+                location: randomLocation,
+                preference: google.maps.StreetViewPreference.BEST,
+                radius: 50000,
+                sources: [google.maps.StreetViewSource.OUTDOOR],
+            }, (data, status) => {
+                resolve({ data, status });
+            });
         });
 
         switch (status) {
@@ -61,9 +56,7 @@ async function changeLocation() {
                 console.error("google api unknown error", status);
                 break;
             case google.maps.StreetViewStatus.OK:
-                ({
-                    location: { latLng, pano },
-                } = data);
+                ({ location: { latLng, pano } } = data);
                 console.debug(`found ${latLng}`);
                 found = true;
                 break;
@@ -71,34 +64,29 @@ async function changeLocation() {
                 console.error(`unexpected status ${status}`);
         }
 
-        await sleep(300);
+        await sleep(200);
     }
 
-    loc.lat = latLng.lat();
-    loc.lng = latLng.lng();
+    return { lat: latLng.lat(), lng: latLng.lng() };
+}
+
+async function changeLocation() {
+    loc = await generateRandomLoc();
     console.debug(`changed loc ${JSON.stringify(loc)}`);
 
-    panorama.setPano(pano);
+    console.log(loc);
+    panorama.setPosition(loc);
     panorama.setVisible(true);
 }
 
-const point = new ol.Feature({
-    geometry: new ol.geom.Point(ol.proj.fromLonLat([12.5, 41.9])),
-});
+let pointFeature = null; 
 
-point.setStyle(
-  new ol.style.Style({
-    image: new ol.style.Icon({
-      color: '#BADA55',
-      crossOrigin: 'anonymous',
-      src: './favicon.ico',
-    }),
-  }),
-);
+let resultPointFeature = null; 
 
+let resultLineFeature = null; 
 
 const vectorSource = new ol.source.Vector({
-  features: [point],
+  features: [],
 });
 
 const vectorLayer = new ol.layer.Vector({
@@ -120,5 +108,94 @@ const map = new ol.Map({
         zoom: 2,
     }),
 });
+
+map.on('singleclick', event => {
+    if (pointFeature !== null) {
+        vectorSource.removeFeature(pointFeature);
+    }
+
+    pointFeature = new ol.Feature({
+        geometry: new ol.geom.Point(event.coordinate),
+    });
+
+    pointFeature.setStyle(
+        new ol.style.Style({
+            image: new ol.style.Icon({
+                crossOrigin: 'anonymous',
+                src: './pin.png',
+                scale: 0.3,
+            }),
+        }),
+    );
+
+    vectorSource.addFeature(pointFeature);
+
+    const [lng, lat] = ol.proj.toLonLat(event.coordinate);
+    locGuessed = { lat, lng };
+
+    document.querySelector("#submit-guess").disabled = false;
+});
+
+function latLngToCoordinate(loc) {
+    return ol.proj.fromLonLat([loc.lng, loc.lat]);
+}
+
+function submitGuess() {
+    if (locGuessed === null) {
+        console.error("locGuessed === null but pressed submit guess");
+        return;
+    }
+    document.querySelector("#submit-guess").disabled = true;
+
+    console.debug("guess");
+
+    resultPointFeature = new ol.Feature({
+        geometry: new ol.geom.Point(latLngToCoordinate(loc)),
+    });
+
+    resultPointFeature.setStyle(
+        new ol.style.Style({
+            image: new ol.style.Icon({
+                crossOrigin: 'anonymous',
+                src: './pin.png',
+                scale: 0.3,
+            }),
+        }),
+    );
+
+    vectorSource.addFeature(resultPointFeature);
+
+    resultLineFeature = new ol.Feature({
+        geometry: new ol.geom.LineString([loc, locGuessed].map(latLngToCoordinate)),
+    });
+
+    resultLineFeature.setStyle(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'green',
+            width: 4,
+        }),
+    }));
+
+    vectorSource.addFeature(resultLineFeature);
+}
+
+function nextRound() {
+    if (pointFeature !== null) {
+        vectorSource.removeFeature(pointFeature);
+    }
+    if (resultLineFeature !== null) {
+        vectorSource.removeFeature(resultLineFeature);
+    }
+
+}
+
+document.querySelector("#submit-guess").addEventListener("click", submitGuess);
+
+window.addEventListener("keydown", event => {
+    switch (event.code) {
+        case "Space":
+            submitGuess();
+    }
+}, true);
 
 
