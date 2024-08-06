@@ -1,8 +1,15 @@
+
+// initialized once by google apis
 let panorama = null;
 
+// Randomly picked location
 let loc = null;
 
+// null if we have not clicked a point on the map yet
 let locGuessed = null;
+
+// If we ended the round by submitting out guess
+let submitted = false;
 
 window.init = async function init() {
     panorama = new google.maps.StreetViewPanorama(document.getElementById("panorama"), {
@@ -21,6 +28,7 @@ function sleep(ms) {
 }
 
 // FIXME: this is dumb as fuck
+// at least pick a location on land, roughly estimated?
 async function generateRandomLoc() {
     if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
     const service = new google.maps.StreetViewService();
@@ -56,7 +64,7 @@ async function generateRandomLoc() {
                 console.error("google api unknown error", status);
                 break;
             case google.maps.StreetViewStatus.OK:
-                ({ location: { latLng, pano } } = data);
+                ({ location: { latLng } } = data);
                 console.debug(`found ${latLng}`);
                 found = true;
                 break;
@@ -64,7 +72,7 @@ async function generateRandomLoc() {
                 console.error(`unexpected status ${status}`);
         }
 
-        await sleep(200);
+        await sleep(100);
     }
 
     return { lat: latLng.lat(), lng: latLng.lng() };
@@ -74,7 +82,6 @@ async function changeLocation() {
     loc = await generateRandomLoc();
     console.debug(`changed loc ${JSON.stringify(loc)}`);
 
-    console.log(loc);
     panorama.setPosition(loc);
     panorama.setVisible(true);
 }
@@ -109,10 +116,11 @@ const map = new ol.Map({
     }),
 });
 
-map.on('singleclick', event => {
+map.on('click', event => {
     if (pointFeature !== null) {
         vectorSource.removeFeature(pointFeature);
     }
+    if (submitted) return;
 
     pointFeature = new ol.Feature({
         geometry: new ol.geom.Point(event.coordinate),
@@ -142,10 +150,18 @@ function latLngToCoordinate(loc) {
 
 function submitGuess() {
     if (locGuessed === null) {
-        console.error("locGuessed === null but pressed submit guess");
+        console.error("Should call submitGuess when we already selected a location, but locGuessed === null ");
         return;
     }
+    if (submitted) {
+        console.log("Should call submitGuess only when we did not complete the round yet, but submitted===true");
+        return;
+    }
+
     document.querySelector("#submit-guess").disabled = true;
+    document.querySelector("#next-round").disabled = false;
+
+    submitted = true;
 
     console.debug("guess");
 
@@ -180,21 +196,36 @@ function submitGuess() {
 }
 
 function nextRound() {
+    document.querySelector("#submit-guess").disabled = false;
+    document.querySelector("#next-round").disabled = true;
+
     if (pointFeature !== null) {
         vectorSource.removeFeature(pointFeature);
     }
     if (resultLineFeature !== null) {
         vectorSource.removeFeature(resultLineFeature);
     }
+    if (resultPointFeature !== null) {
+        vectorSource.removeFeature(resultPointFeature);
+    }
 
+    submitted = false;
+
+    changeLocation();
 }
 
 document.querySelector("#submit-guess").addEventListener("click", submitGuess);
 
+document.querySelector("#next-round").addEventListener("click", nextRound);
+
 window.addEventListener("keydown", event => {
     switch (event.code) {
         case "Space":
-            submitGuess();
+            if (!submitted && locGuessed !== null) submitGuess();
+            break;
+        case "Enter":
+            if (submitted) nextRound();
+            break;
     }
 }, true);
 

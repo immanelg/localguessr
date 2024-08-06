@@ -36,6 +36,8 @@ html, body {
     cursor: pointer;
 
     opacity: 0.6;
+
+    border-radius: 10px;
 }
 
 #map:hover {
@@ -49,21 +51,47 @@ html, body {
     transition: height 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out;
 }
 
-button#submit-guess {
+button {
+    border: none;
+    border-radius: 10px;
+    background: hsl(89, 58%, 35%);;
+    color: rgb(255 255 255); 
+}
+
+button:disabled {
+    background: rgb(84 84 84);
+}
+
+.control-bar {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 25px 10px;
-    margin: 5px;
-    border: none;
-    font-size: 20pt;
-    border-radius: 10px;
-    background: rgb(47 141 37);
-    color: rgb(255 255 255); 
+
+    display: flex;
+    justify-content: center;
+
+    padding: 10px;
+
     z-index: 1;
 }
 
-button#submit-guess:disabled {
+.control-bar > button {
+    padding: 25px 10px;
+    margin: 5px;
+    font-size: 16pt;
+    opacity: 0.8;
+}
+
+.control-bar > button:hover:not([disabled]) {
+    opacity: 1;
+    transition: opacity 0.3s ease-out;
+}
+
+button#next-round {
+    background: hsl(200, 58%, 35%);
+}
+
+button#next-round:disabled {
     background: rgb(84 84 84);
 }
 
