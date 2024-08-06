@@ -117,6 +117,10 @@ const map = new ol.Map({
 });
 
 map.on('click', event => {
+    // readonly map if round ended
+    if (submitted) return;
+
+    // else change our pin position
     if (pointFeature !== null) {
         vectorSource.removeFeature(pointFeature);
     }
