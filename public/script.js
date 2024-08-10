@@ -213,7 +213,7 @@ function submitGuess() {
 
     vectorSource.addFeature(resultLineFeature);
 
-    animateToCoordinate(latLngToCoordinate(loc));
+    setTimeout(() => animateToCoordinate(latLngToCoordinate(loc)), 300);
 }
 
 function nextRound() {
