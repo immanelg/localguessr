@@ -11,8 +11,10 @@ let locGuessed = null;
 // If we ended the round by submitting out guess
 let submitted = false;
 
-window.init = async function init() {
-    panorama = new google.maps.StreetViewPanorama(document.getElementById("panorama"), {
+async function init() {
+    const { StreetViewPanorama } = await google.maps.importLibrary("streetView")
+
+    panorama = new StreetViewPanorama(document.getElementById("panorama"), {
         visible: false,
         motionTracking: false,
         motionTrackingControl: false,
@@ -23,14 +25,16 @@ window.init = async function init() {
     changeLocation();
 };
 
+init();
+
 function sleep(ms) { 
     return new Promise((r) => setTimeout(r, ms));
 }
 
-// FIXME: this is dumb as fuck
-// at least pick a location on land, roughly estimated?
+// FIXME: this is dumb
+// There should be a better way
 async function generateRandomLoc() {
-    if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
+    //if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
     const service = new google.maps.StreetViewService();
 
     let latLng;
