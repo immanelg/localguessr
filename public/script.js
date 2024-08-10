@@ -137,9 +137,10 @@ map.on('click', event => {
     pointFeature.setStyle(
         new ol.style.Style({
             image: new ol.style.Icon({
-                src: './pin.png',
+                src: './pin.svg',
+                color: "green",
                 anchor: [0.5, 1],
-                scale: 0.5,
+                scale: 0.1,
             }),
         }),
     );
@@ -180,9 +181,10 @@ function submitGuess() {
     resultPointFeature.setStyle(
         new ol.style.Style({
             image: new ol.style.Icon({
-                src: './pin.png',
+                src: './pin.svg',
+                color: "red",
                 anchor: [0.5, 1],
-                scale: 0.5,
+                scale: 0.1,
             }),
         }),
     );
