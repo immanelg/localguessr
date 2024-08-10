@@ -14,7 +14,7 @@ A game about guessing your location based on Google Street View API.
 
 ```
 python -m http.server 3000
-chromium http://localhost:3000
+firefox http://localhost:3000
 ```
 
 # Acknowledgements
