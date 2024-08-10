@@ -1,16 +1,13 @@
-
-// initialized once by google apis
-let panorama = null;
-
 // Randomly picked location
 let loc = null;
 
-// null if we have not clicked a point on the map yet
+// Our guess
 let locGuessed = null;
 
-// If we ended the round by submitting out guess
 let submitted = false;
+let loading = true;
 
+let panorama = null;
 async function init() {
     const { StreetViewPanorama } = await google.maps.importLibrary("streetView")
 
@@ -23,6 +20,8 @@ async function init() {
     });
 
     changeLocation();
+    loading = false;
+    document.querySelector("#submit-guess").classList.remove("hidden");
 };
 
 init();
@@ -83,6 +82,8 @@ async function generateRandomLoc() {
 }
 
 async function changeLocation() {
+    panorama.setVisible(false);
+
     loc = await generateRandomLoc();
     console.debug(`changed loc ${JSON.stringify(loc)}`);
 
@@ -152,7 +153,7 @@ map.on('click', event => {
     const [lng, lat] = ol.proj.toLonLat(event.coordinate);
     locGuessed = { lat, lng };
 
-    document.querySelector("#submit-guess").disabled = false;
+    document.querySelector("#submit-guess").classList.remove("hidden");
 });
 
 function latLngToCoordinate(loc) {
@@ -160,19 +161,25 @@ function latLngToCoordinate(loc) {
 }
 
 function submitGuess() {
+    if (loading) {
+        console.debug("submitGuess: can't submit because loading == true");
+        return;
+    }
     if (locGuessed === null) {
-        console.error("Should call submitGuess when we already selected a location, but locGuessed === null ");
+        console.debug("submitGuess: can't submit because locGuessed === null");
         return;
     }
     if (submitted) {
-        console.log("Should call submitGuess only when we did not complete the round yet, but submitted===true");
+        console.debug("submitGuess: can't submit because already submitted === true");
         return;
     }
 
-    document.querySelector("#submit-guess").disabled = true;
-    document.querySelector("#next-round").disabled = false;
-
     submitted = true;
+
+    document.querySelector("#submit-guess").classList.add("hidden");
+    document.querySelector("#next-round").classList.remove("hidden");
+
+    document.querySelector("#map").classList.add("maximized");
 
     console.debug("guess");
 
@@ -211,15 +218,13 @@ function submitGuess() {
 
 function nextRound() {
     if (!submitted) {
-        console.debug("nextRound: submitted==true"); 
+        console.debug("nextRound: submitted==false"); 
         return;
     }
     if (loading) {
         console.debug("nextRound: loading==true"); 
         return;
     }
-    document.querySelector("#submit-guess").disabled = false;
-    document.querySelector("#next-round").disabled = true;
 
     vectorSource.removeFeature(pointFeature);
     vectorSource.removeFeature(resultLineFeature);
@@ -227,16 +232,16 @@ function nextRound() {
 
     submitted = false;
     loading = true;
+    document.querySelector("#next-round").classList.add("hidden");
 
     changeLocation();
 
-    submitted = false;
     loading = false;
 
     document.querySelector("#map").classList.remove("maximized");
 }
 
-function animateToCoordinate(center, done) {
+function animateToCoordinate(center) {
     const zoom = view.getZoom();
     view.animate({
         center,
@@ -250,13 +255,17 @@ document.querySelector("#submit-guess").addEventListener("click", submitGuess);
 
 document.querySelector("#next-round").addEventListener("click", nextRound);
 
+document.querySelector("#toggle-map").addEventListener("click", () => {
+    document.querySelector("#map").classList.toggle("maximized");
+});
+
 window.addEventListener("keydown", event => {
     switch (event.code) {
         case "Space":
-            if (!submitted && locGuessed !== null) submitGuess();
+            submitGuess();
             break;
         case "Enter":
-            if (submitted) nextRound();
+            nextRound();
             break;
     }
 }, true);

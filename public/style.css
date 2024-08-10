@@ -9,7 +9,10 @@ html, body {
     background-color: rgb(48 48 48);
     color: rgb(255 255 255);
     font-family: sans-serif;
-    font-size: 15pt;
+}
+
+.hidden {
+    display: none;
 }
 
 #panorama {
@@ -40,9 +43,10 @@ html, body {
     border-radius: 10px;
 }
 
-#map:hover {
-    height: 75%;
-    width: 75%;
+#map:hover,
+#map.maximized {
+    height: 80%;
+    width: 100%;
     bottom: 0;
     right: 0;
 
@@ -75,20 +79,24 @@ button:disabled {
     z-index: 1;
 }
 
-.control-bar > button {
-    padding: 25px 10px;
+.control-bar button {
+    padding: 15px 15px;
     margin: 5px;
-    font-size: 16pt;
+    font-size: 1.5rem;
     opacity: 0.8;
 }
 
-.control-bar > button:hover:not([disabled]) {
+.control-bar button:hover:not([disabled]) {
     opacity: 1;
     transition: opacity 0.3s ease-out;
 }
 
 button#next-round {
     background: hsl(200, 58%, 35%);
+}
+
+button#toggle-map {
+    background: hsl(45, 58%, 35%);
 }
 
 button#next-round:disabled {
