@@ -104,6 +104,11 @@ const vectorLayer = new ol.layer.Vector({
   source: vectorSource,
 });
 
+const view = new ol.View({
+    center: [0, 0],
+    zoom: 1,
+})
+
 const map = new ol.Map({
     target: "map",
     layers: [
@@ -114,15 +119,12 @@ const map = new ol.Map({
         }),
         vectorLayer,
     ],
-    view: new ol.View({
-        center: [0, 0],
-        zoom: 2,
-    }),
+    view,
 });
 
 map.on('click', event => {
-    // readonly map if round ended
-    if (submitted) return;
+    // readonly map if not loaded or round ended
+    if (!loc || submitted) return;
 
     // else change our pin position
     if (pointFeature !== null) {
@@ -197,31 +199,51 @@ function submitGuess() {
 
     resultLineFeature.setStyle(new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'blue',
-            width: 2,
+            color: 'gray',
+            width: 1,
         }),
     }));
 
     vectorSource.addFeature(resultLineFeature);
+
+    animateToCoordinate(latLngToCoordinate(loc));
 }
 
 function nextRound() {
+    if (!submitted) {
+        console.debug("nextRound: submitted==true"); 
+        return;
+    }
+    if (loading) {
+        console.debug("nextRound: loading==true"); 
+        return;
+    }
     document.querySelector("#submit-guess").disabled = false;
     document.querySelector("#next-round").disabled = true;
 
-    if (pointFeature !== null) {
-        vectorSource.removeFeature(pointFeature);
-    }
-    if (resultLineFeature !== null) {
-        vectorSource.removeFeature(resultLineFeature);
-    }
-    if (resultPointFeature !== null) {
-        vectorSource.removeFeature(resultPointFeature);
-    }
+    vectorSource.removeFeature(pointFeature);
+    vectorSource.removeFeature(resultLineFeature);
+    vectorSource.removeFeature(resultPointFeature);
 
     submitted = false;
+    loading = true;
 
     changeLocation();
+
+    submitted = false;
+    loading = false;
+
+    document.querySelector("#map").classList.remove("maximized");
+}
+
+function animateToCoordinate(center, done) {
+    const zoom = view.getZoom();
+    view.animate({
+        center,
+        zoom: 3,
+        duration: 1000,
+        easing: t => Math.pow(2, -10 * t) * Math.sin(((t - 0.075) * (2 * Math.PI)) / 0.3) + 1,
+    });
 }
 
 document.querySelector("#submit-guess").addEventListener("click", submitGuess);
