@@ -137,9 +137,9 @@ map.on('click', event => {
     pointFeature.setStyle(
         new ol.style.Style({
             image: new ol.style.Icon({
-                crossOrigin: 'anonymous',
                 src: './pin.png',
-                scale: 0.3,
+                anchor: [0.5, 1],
+                scale: 0.5,
             }),
         }),
     );
@@ -180,9 +180,9 @@ function submitGuess() {
     resultPointFeature.setStyle(
         new ol.style.Style({
             image: new ol.style.Icon({
-                crossOrigin: 'anonymous',
                 src: './pin.png',
-                scale: 0.3,
+                anchor: [0.5, 1],
+                scale: 0.5,
             }),
         }),
     );
@@ -195,8 +195,8 @@ function submitGuess() {
 
     resultLineFeature.setStyle(new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'green',
-            width: 4,
+            color: 'blue',
+            width: 2,
         }),
     }));
 
