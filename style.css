@@ -17,6 +17,13 @@ html, body {
     display: none;
 }
 
+button {
+    border: none;
+    border-radius: 10px;
+    background: hsl(89, 58%, 35%);;
+    color: rgb(255 255 255); 
+}
+
 #panorama {
     position: fixed;
     top: 0; 
@@ -30,7 +37,7 @@ html, body {
 }
 
 #map {
-    position: absolute;
+    position: fixed;
     z-index: 1;
 
     height: 30%;
@@ -38,59 +45,47 @@ html, body {
     bottom: 0;
     right: 0;
 
-    cursor: pointer;
+    cursor: zoom-in;
 
     opacity: 0.6;
+    border: 6px solid hsl(56, 58%, 60%);
 
-    border-radius: 10px;
+    transition: all 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-#map:hover,
-#map.maximized {
-    height: 80%;
-    width: 100%;
+#map.maximize-pin, #map:hover {
+    height: 75%;
+    width: 75%;
     bottom: 0;
     right: 0;
 
+    cursor: crosshair;
+
     opacity: 1;
-
-    transition: height 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out;
-}
-
-button {
-    border: none;
-    border-radius: 10px;
-    background: hsl(89, 58%, 35%);;
-    color: rgb(255 255 255); 
-}
-
-button:disabled {
-    background: rgb(84 84 84);
 }
 
 .control-bar {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: fixed;
+    left: 50%;
+    right: 50%; 
+    bottom: 0;
 
     display: flex;
     justify-content: center;
+    align-items: center;
 
     padding: 10px;
 
-    z-index: 1;
+    z-index: 2;
 }
 
 .control-bar button {
     padding: 15px 15px;
     margin: 5px;
+    white-space: nowrap;
     font-size: 1.5rem;
-    opacity: 0.8;
-}
 
-.control-bar button:hover:not([disabled]) {
-    opacity: 1;
-    transition: opacity 0.3s ease-out;
+    opacity: 0.8;
 }
 
 button#next-round {
@@ -99,10 +94,6 @@ button#next-round {
 
 button#toggle-map {
     background: hsl(45, 58%, 35%);
-}
-
-button#next-round:disabled {
-    background: rgb(84 84 84);
 }
 
 img[alt="Google"] {
