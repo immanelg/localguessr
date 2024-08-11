@@ -222,6 +222,8 @@ function submitGuess() {
 
     vectorSource.addFeature(resultLineFeature);
 
+    console.log(calcPoints());
+
     setTimeout(() => animateToCoordinate(latLngToCoordinate(loc)), 100);
 
     locGuessed = null;
@@ -262,6 +264,31 @@ function animateToCoordinate(center) {
 
 function toggleMaximizedMap() {
     elem.map.classList.toggle("maximize-pin");
+}
+
+function degreeToRad(n) {
+  return n * Math.PI / 180;
+}
+
+function locDistance({lat: lat1, lng: lng1}, {lat: lat2, lng: lng2}) {
+    const R = 6371;
+    const dLat = degreeToRad(lat2 - lat1);
+    const dLng = degreeToRad(lng2 - lng1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(degreeToRad(lat1)) *
+                Math.cos(degreeToRad(lat2)) *
+                Math.sin(dLng / 2) *
+                Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c;
+    return d;
+}
+
+function calcPoints() {
+    const d = locDistance(loc, locGuessed);
+    const factor = 1/3000;
+    return Math.round(1000 * Math.exp(-factor*d));
 }
 
 elem.submitGuessBtn.addEventListener("click", submitGuess);
