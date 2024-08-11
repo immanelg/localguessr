@@ -131,12 +131,11 @@ const map = new Map({
 });
 
 map.on('click', event => {
-    if (!loc || submitted) return;
+    if (!loc || submitted || loading) return;
 
     if (pointFeature !== null) {
         vectorSource.removeFeature(pointFeature);
     }
-    if (submitted) return;
 
     pointFeature = new Feature({
         geometry: new Point(event.coordinate),
