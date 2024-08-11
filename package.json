@@ -1,0 +1,23 @@
+{
+  "name": "localguessr",
+  "version": "1.0.0",
+  "description": "A game about guessing your location based on Google Street View API.",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+
+  "main": "index.js",
+
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+
+  "dependencies": {
+    "ol": "latest"
+  },
+
+  "devDependencies": {
+    "vite": "^5.3.4"
+  }
+}

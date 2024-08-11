@@ -1,3 +1,19 @@
+import './style.css';
+
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import LineString from 'ol/geom/LineString';
+import { fromLonLat, toLonLat } from 'ol/proj';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import Stroke from 'ol/style/Stroke';
+
 // Randomly picked location
 let loc = null;
 
@@ -8,8 +24,9 @@ let submitted = false;
 let loading = true;
 
 let panorama = null;
+
 async function init() {
-    const { StreetViewPanorama } = await google.maps.importLibrary("streetView")
+    const { StreetViewPanorama } = await google.maps.importLibrary("streetView");
 
     panorama = new StreetViewPanorama(document.getElementById("panorama"), {
         visible: false,
@@ -22,27 +39,22 @@ async function init() {
     changeLocation();
     loading = false;
     document.querySelector("#submit-guess").classList.remove("hidden");
-};
+}
 
 init();
 
-function sleep(ms) { 
+function sleep(ms) {
     return new Promise((r) => setTimeout(r, ms));
 }
 
-// FIXME: this is dumb
-// There should be a better way
+// FIXME: there should be a better way.
 async function generateRandomLoc() {
-    //if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
     const service = new google.maps.StreetViewService();
-
     let latLng;
-
     let found = false;
 
-    let randomLocation;
     while (!found) {
-        randomLocation = {
+        const randomLocation = {
             lat: Math.random() * 180 - 90,
             lng: Math.random() * 360 - 180,
         };
@@ -83,7 +95,6 @@ async function generateRandomLoc() {
 
 async function changeLocation() {
     panorama.setVisible(false);
-
     loc = await generateRandomLoc();
     console.debug(`changed loc ${JSON.stringify(loc)}`);
 
@@ -91,32 +102,28 @@ async function changeLocation() {
     panorama.setVisible(true);
 }
 
-let pointFeature = null; 
+let pointFeature = null;
+let resultPointFeature = null;
+let resultLineFeature = null;
 
-let resultPointFeature = null; 
-
-let resultLineFeature = null; 
-
-const vectorSource = new ol.source.Vector({
-  features: [],
+const vectorSource = new VectorSource({
+    features: [],
 });
 
-const vectorLayer = new ol.layer.Vector({
-  source: vectorSource,
+const vectorLayer = new VectorLayer({
+    source: vectorSource,
 });
 
-const view = new ol.View({
-    center: [0, 0],
+const view = new View({
+    center: fromLonLat([0, 0]),
     zoom: 1,
-})
+});
 
-const map = new ol.Map({
+const map = new Map({
     target: "map",
     layers: [
-        new ol.layer.Tile({
-            source: new ol.source.XYZ({
-                url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            }),
+        new TileLayer({
+            source: new OSM(),
         }),
         vectorLayer,
     ],
@@ -124,40 +131,38 @@ const map = new ol.Map({
 });
 
 map.on('click', event => {
-    // readonly map if not loaded or round ended
     if (!loc || submitted) return;
 
-    // else change our pin position
     if (pointFeature !== null) {
         vectorSource.removeFeature(pointFeature);
     }
     if (submitted) return;
 
-    pointFeature = new ol.Feature({
-        geometry: new ol.geom.Point(event.coordinate),
+    pointFeature = new Feature({
+        geometry: new Point(event.coordinate),
     });
 
     pointFeature.setStyle(
-        new ol.style.Style({
-            image: new ol.style.Icon({
+        new Style({
+            image: new Icon({
                 src: './pin.svg',
                 color: "green",
                 anchor: [0.5, 1],
-                scale: 0.1,
+                scale: 0.5,
             }),
         }),
     );
 
     vectorSource.addFeature(pointFeature);
 
-    const [lng, lat] = ol.proj.toLonLat(event.coordinate);
+    const [lng, lat] = toLonLat(event.coordinate);
     locGuessed = { lat, lng };
 
     document.querySelector("#submit-guess").classList.remove("hidden");
 });
 
 function latLngToCoordinate(loc) {
-    return ol.proj.fromLonLat([loc.lng, loc.lat]);
+    return fromLonLat([loc.lng, loc.lat]);
 }
 
 function submitGuess() {
@@ -178,34 +183,33 @@ function submitGuess() {
 
     document.querySelector("#submit-guess").classList.add("hidden");
     document.querySelector("#next-round").classList.remove("hidden");
-
     document.querySelector("#map").classList.add("maximized");
 
     console.debug("guess");
 
-    resultPointFeature = new ol.Feature({
-        geometry: new ol.geom.Point(latLngToCoordinate(loc)),
+    resultPointFeature = new Feature({
+        geometry: new Point(latLngToCoordinate(loc)),
     });
 
     resultPointFeature.setStyle(
-        new ol.style.Style({
-            image: new ol.style.Icon({
+        new Style({
+            image: new Icon({
                 src: './pin.svg',
                 color: "red",
                 anchor: [0.5, 1],
-                scale: 0.1,
+                scale: 0.5,
             }),
         }),
     );
 
     vectorSource.addFeature(resultPointFeature);
 
-    resultLineFeature = new ol.Feature({
-        geometry: new ol.geom.LineString([loc, locGuessed].map(latLngToCoordinate)),
+    resultLineFeature = new Feature({
+        geometry: new LineString([loc, locGuessed].map(latLngToCoordinate)),
     });
 
-    resultLineFeature.setStyle(new ol.style.Style({
-        stroke: new ol.style.Stroke({
+    resultLineFeature.setStyle(new Style({
+        stroke: new Stroke({
             color: 'gray',
             width: 1,
         }),
@@ -213,16 +217,16 @@ function submitGuess() {
 
     vectorSource.addFeature(resultLineFeature);
 
-    setTimeout(() => animateToCoordinate(latLngToCoordinate(loc)), 300);
+    setTimeout(() => animateToCoordinate(latLngToCoordinate(loc)), 600);
 }
 
 function nextRound() {
     if (!submitted) {
-        console.debug("nextRound: submitted==false"); 
+        console.debug("nextRound: submitted==false");
         return;
     }
     if (loading) {
-        console.debug("nextRound: loading==true"); 
+        console.debug("nextRound: loading==true");
         return;
     }
 
@@ -245,16 +249,14 @@ function animateToCoordinate(center) {
     const zoom = view.getZoom();
     view.animate({
         center,
-        zoom: 3,
+        //zoom: 3,
         duration: 1000,
         easing: t => Math.pow(2, -10 * t) * Math.sin(((t - 0.075) * (2 * Math.PI)) / 0.3) + 1,
     });
 }
 
 document.querySelector("#submit-guess").addEventListener("click", submitGuess);
-
 document.querySelector("#next-round").addEventListener("click", nextRound);
-
 document.querySelector("#toggle-map").addEventListener("click", () => {
     document.querySelector("#map").classList.toggle("maximized");
 });
@@ -269,5 +271,3 @@ window.addEventListener("keydown", event => {
             break;
     }
 }, true);
-
-

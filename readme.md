@@ -9,14 +9,34 @@ A game about guessing your location based on Google Street View API.
 
 # Run
 
-1. If you want to host localguessr, you need to get [API key](https://developers.google.com/maps/documentation/javascript/get-api-key) and put it in [index.html](./index.html) `<script>` tag that loads Google APIs; note that it works without API key.
-2. Serve `index.html` page:
+We use Vite for building. (Even though we use vanilla HTML, CSS and JavaScript, this is necessary to optimize OpenLayers library which is not supposed to be used with cdns). So you will need npm or whatever.
 
+Install JS dependencies:
+```sh
+npm install
 ```
-python -m http.server 3000
-firefox http://localhost:3000
+
+Start development server:
+```sh
+npm run dev
 ```
+or 
+```sh
+vite
+```
+
+If you want to host localguessr, you need to get the [Google API key](https://developers.google.com/maps/documentation/javascript/get-api-key) and put it in [`<script>` tag that loads Google APIs](./index.html). But to start development server, you don't need an API key.
+
+Build for production:
+```sh
+npm run build
+```
+or 
+```sh
+vite build
+```
+This will create the `dist/` directory.
 
 # Acknowledgements
 
--   [WorldGuessr](https://github.com/codergautam/worldguessr) (MIT license)
+- Some code is copied from [WorldGuessr](https://github.com/codergautam/worldguessr) (MIT license)
