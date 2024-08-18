@@ -307,4 +307,4 @@ window.addEventListener("keydown", event => {
     }
 }, true);
 
-await init();
+init();
