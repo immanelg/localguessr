@@ -153,7 +153,7 @@ map.on('click', event => {
     pointFeature.setStyle(
         new Style({
             image: new Icon({
-                src: './pin.svg',
+                src: "/pin.svg",
                 color: "green",
                 anchor: [0.5, 1],
                 scale: 0.5,
@@ -197,7 +197,7 @@ function submitGuess() {
     resultPointFeature.setStyle(
         new Style({
             image: new Icon({
-                src: './pin.svg',
+                src: "/pin.svg",
                 color: "red",
                 anchor: [0.5, 1],
                 scale: 0.5,
