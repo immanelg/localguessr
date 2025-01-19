@@ -44,7 +44,7 @@ async function init() {
         },
     });
 
-    await loadRound();
+    await panoramaToNewLocation();
     elem.loadingOverlay.classList.add("hidden");
     roundState = "guessable";
 }
@@ -101,7 +101,7 @@ async function generateRandomLoc() {
     return { lat: latLng.lat(), lng: latLng.lng() };
 }
 
-async function changeLocation() {
+async function panoramaToNewLocation() {
     panorama.setVisible(false);
     loc = await generateRandomLoc();
     console.debug(`changed loc ${JSON.stringify(loc)}`);
@@ -234,23 +234,18 @@ async function nextRound() {
 
     roundState = "reloadingRound";
 
+    elem.nextRoundBtn.classList.add("hidden");
+
     elem.loadingOverlay.classList.remove("hidden");
     view.setZoom(2);
     vectorSource?.removeFeature(pointFeature);
     vectorSource?.removeFeature(resultLineFeature);
     vectorSource?.removeFeature(resultPointFeature);
 
-    await loadRound();
+    await panoramaToNewLocation();
     elem.loadingOverlay.classList.add("hidden");
 
     roundState = "guessable";
-}
-
-async function loadRound() {
-    elem.nextRoundBtn.classList.add("hidden");
-    elem.map.classList.remove("maximize-pin");
-
-    await changeLocation();
 }
 
 function animateToCoordinate(center) {
