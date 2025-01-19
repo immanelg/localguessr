@@ -60,8 +60,13 @@ async function generateRandomLoc() {
     const service = new google.maps.StreetViewService();
     let latLng;
     let found = false;
+    let triesRemaining = 300;
 
     while (!found) {
+        if (triesRemaining-- < 0) {
+            alert("okay bye.");
+            window.close();
+        }
         const randomLocation = {
             lat: Math.random() * 180 - 90,
             lng: Math.random() * 360 - 180,
