@@ -27,9 +27,8 @@ const elem = {
     submitGuessBtn: document.querySelector("#submit-guess"),
     nextRoundBtn: document.querySelector("#next-round"),
     map: document.querySelector("#map"),
-    toggleMap: document.querySelector("#toggle-map"),
+    loadingOverlay: document.getElementById("loading-overlay"),
 };
-
 
 async function init() {
     const { StreetViewPanorama } = await google.maps.importLibrary("streetView");
@@ -40,9 +39,13 @@ async function init() {
         motionTrackingControl: false,
         showRoadLabels: false,
         disableDefaultUI: true,
+        pov: {
+            zoom: 0,
+        },
     });
 
-    loadRound();
+    await loadRound();
+    elem.loadingOverlay.classList.add("hidden");
     roundState = "guessable";
 }
 
@@ -52,7 +55,7 @@ function sleep(ms) {
 
 // FIXME: there should be a better way.
 async function generateRandomLoc() {
-    if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
+     //if (true) return {lat: 67.00050991712676, lng: 79.15437858657035};
 
     const service = new google.maps.StreetViewService();
     let latLng;
@@ -63,7 +66,7 @@ async function generateRandomLoc() {
             lat: Math.random() * 180 - 90,
             lng: Math.random() * 360 - 180,
         };
-        console.debug(`randomLocation ${JSON.stringify(randomLocation)}`);
+        console.debug(`trying ${JSON.stringify(randomLocation)}`);
 
         const { data, status } = await new Promise((resolve) => {
             service.getPanorama({
@@ -136,10 +139,6 @@ const map = new Map({
 });
 
 map.on('click', event => {
-    //if (!elem.map.classList.contains("maximized")) {
-    //    toggleMaximizedMap();
-    //    return;
-    //}
     if (roundState !== "guessable") {
         console.debug(`map click: roundState===${roundState}`);
         return;
@@ -154,9 +153,9 @@ map.on('click', event => {
         new Style({
             image: new Icon({
                 src: "/pin.svg",
-                color: "green",
+                color: "red",
                 anchor: [0.5, 1],
-                scale: 0.5,
+                scale: 0.2,
             }),
         }),
     );
@@ -198,9 +197,9 @@ function submitGuess() {
         new Style({
             image: new Icon({
                 src: "/pin.svg",
-                color: "red",
+                color: "green",
                 anchor: [0.5, 1],
-                scale: 0.5,
+                scale: 0.2,
             }),
         }),
     );
@@ -220,14 +219,14 @@ function submitGuess() {
 
     vectorSource.addFeature(resultLineFeature);
 
-    console.log(calcPoints());
+    console.log(`you've got ${calcPoints()} points`);
 
     setTimeout(() => animateToCoordinate(latLngToCoordinate(loc)), 100);
 
     locGuessed = null;
 }
 
-function nextRound() {
+async function nextRound() {
     if (roundState !== "submitted") {
         console.debug(`nextRound: roundState===${roundState}`);
         return;
@@ -235,20 +234,23 @@ function nextRound() {
 
     roundState = "reloadingRound";
 
+    elem.loadingOverlay.classList.remove("hidden");
+    view.setZoom(2);
     vectorSource?.removeFeature(pointFeature);
     vectorSource?.removeFeature(resultLineFeature);
     vectorSource?.removeFeature(resultPointFeature);
 
-    loadRound();
+    await loadRound();
+    elem.loadingOverlay.classList.add("hidden");
 
     roundState = "guessable";
 }
 
-function loadRound() {
+async function loadRound() {
     elem.nextRoundBtn.classList.add("hidden");
     elem.map.classList.remove("maximize-pin");
 
-    changeLocation();
+    await changeLocation();
 }
 
 function animateToCoordinate(center) {
@@ -291,15 +293,14 @@ function calcPoints() {
 
 elem.submitGuessBtn.addEventListener("click", submitGuess);
 elem.nextRoundBtn.addEventListener("click", nextRound);
-elem.toggleMap.addEventListener("click", toggleMaximizedMap);
 
-window.addEventListener("keydown", event => {
+window.addEventListener("keydown", async function(event) {
     switch (event.code) {
         case "Space":
             submitGuess();
             break;
         case "Enter":
-            nextRound();
+            await nextRound();
             break;
         case "Escape":
             toggleMaximizedMap();

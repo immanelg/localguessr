@@ -24,44 +24,87 @@ button {
     color: rgb(255 255 255); 
 }
 
-#panorama {
+#loading-overlay {
     position: fixed;
-    top: 0; 
-    left: 0; 
-    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(80, 80, 80, 0.8);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+#loading-overlay.hidden {
+    display: none;
+}
+#loading-spinner {
+    border: 10px solid hsl(0, 100%, 100%);
+    border-top: 10px solid hsl(54, 100%, 50%);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#game-container {
+    display: flex;
     height: 100%;
+}
+
+#panorama {
+    /*position: fixed;*/
+    flex: 2;
+    /*top: 0; */
+    /*left: 0; */
+    /*width: 100%;*/
+    /*height: 100%;*/
     /*height: 100vh;*/
     /*width: 100vw;*/
+
+    /*border: 4px solid hsl(100, 58%, 60%);*/
 
     filter: invert(1);
 }
 
 #map {
-    position: fixed;
-    z-index: 1;
+    /*position: fixed;*/
+    /*z-index: 1;*/
+    flex: 1;
 
-    height: 30%;
-    width: 30%;
-    bottom: 0;
-    right: 0;
+    /*height: 30%;*/
+    /*width: 30%;*/
+    /*bottom: 0;*/
+    /*right: 0;*/
 
     cursor: zoom-in;
 
-    opacity: 0.6;
-    border: 6px solid hsl(56, 58%, 60%);
+    /*opacity: 0.6;*/
+    /*border: 4px solid hsl(60, 58%, 60%);*/
 
-    transition: all 0.2s ease-out, opacity 0.2s ease-out;
+    /*transition: all 0.2s ease-out, opacity 0.2s ease-out;*/
 }
 
-#map.maximize-pin, #map:hover {
-    height: 75%;
-    width: 75%;
-    bottom: 0;
-    right: 0;
+/*#map.maximize-pin, #map:hover {*/
+/*    height: 75%;*/
+/*    width: 75%;*/
+/*    bottom: 0;*/
+/*    right: 0;*/
+/**/
+/*    cursor: crosshair;*/
+/**/
+/*    opacity: 1;*/
+/*}*/
 
+#map:hover {
     cursor: crosshair;
-
-    opacity: 1;
 }
 
 .control-bar {
